@@ -1,0 +1,35 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ */
+package com.ttcsn.moviebooking.repository;
+
+import com.ttcsn.moviebooking.entity.Showtime;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+/**
+ *
+ * @author quanghieu
+ */
+@Repository
+public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
+
+    List<Showtime> findByMovie_MovieId(Long movieId);
+
+    List<Showtime> findByRoom_RoomId(Long roomId);
+
+    @Query("SELECT COUNT(s) > 0 FROM Showtime s WHERE s.room.roomId = :roomId " +
+           "AND (:showtimeId IS NULL OR s.showtimeId <> :showtimeId) " +
+           "AND s.startTime < :endTime AND s.endTime > :startTime")
+    boolean existsOverlappingShowtime(
+            @Param("roomId") Long roomId,
+            @Param("startTime") OffsetDateTime startTime,
+            @Param("endTime") OffsetDateTime endTime,
+            @Param("showtimeId") Long showtimeId);
+}
